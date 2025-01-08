@@ -1,0 +1,111 @@
+package a1;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+@WebServlet("/first")
+public class first extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Set response content type
+        response.setContentType("text/html");
+
+        // Get input values from the request
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String email = request.getParameter("email");
+        String dobStr = request.getParameter("dob");
+
+        // Initialize the output message
+        String message = "";
+
+        // Validate the input data
+        if (firstName == null || lastName == null || email == null || dobStr == null || firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || dobStr.isEmpty()) {
+            message = "Error: All fields are required!";
+        } else {
+            try {
+                // Parse the date of birth
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                Date dob = sdf.parse(dobStr);
+                Date currentDate = new Date();
+
+                // Calculate the age by subtracting the birth year from the current year
+                int age = currentDate.getYear() - dob.getYear();
+
+                // If the current date hasn't reached the birthday this year, subtract one from the age
+                if (currentDate.getMonth() < dob.getMonth() || (currentDate.getMonth() == dob.getMonth() && currentDate.getDate() < dob.getDate())) {
+                    age--;
+                }
+
+                // Check if the user is eligible to vote (age >= 18)
+                if (age >= 18) {
+                    message = "You are eligible to vote!";
+                } else {
+                    message = "You are not eligible to vote. You must be at least 18 years old.";
+                }
+
+            } catch (Exception e) {
+                message = "Error: Invalid date format. Please use 'yyyy-MM-dd'.";
+            }
+        }
+
+        // Display the result
+        PrintWriter out = response.getWriter();
+        out.println("<html>");
+        out.println("<head><title>Voter Eligibility</title></head>");
+        out.println("<body>");
+        out.println("<h1>Voter Eligibility Check</h1>");
+        out.println("<p><strong>First Name:</strong> " + firstName + "</p>");
+        out.println("<p><strong>Last Name:</strong> " + lastName + "</p>");
+        out.println("<p><strong>Email:</strong> " + email + "</p>");
+        out.println("<p><strong>Date of Birth:</strong> " + dobStr + "</p>");
+        out.println("<h2>" + message + "</h2>");
+        out.println("<br><br>");
+        out.println("<a href='voterForm.html'>Go Back</a>");
+        out.println("</body>");
+        out.println("</html>");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // If accessed via GET, just redirect to the form
+        response.sendRedirect("NewFile.html");
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voter Eligibility Check</title>
+</head>
+<body>
+    <h1>Voter Eligibility Check</h1>
+    <form action="first" method="post">
+        <label for="firstName">First Name:</label>
+        <input type="text" id="firstName" name="firstName" required><br><br>
+
+        <label for="lastName">Last Name:</label>
+        <input type="text" id="lastName" name="lastName" required><br><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="dob">Date of Birth (yyyy-mm-dd):</label>
+        <input type="text" id="dob" name="dob" required><br><br>
+
+        <button type="submit">Check Eligibility</button>
+    </form>
+</body>
+</html>
+
