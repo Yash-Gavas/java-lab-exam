@@ -1,0 +1,156 @@
+package a;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class connection {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/";
+        String dbName = "FacultyDB";
+        String username = "root"; // Update with your MySQL username
+        String password = ""; // Update with your MySQL password
+
+        Connection conn = null;
+        Statement stmt = null;
+
+        try {
+            // Load the MySQL JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+
+            // Establish the connection
+            conn = DriverManager.getConnection(url, username, password);
+            stmt = conn.createStatement();
+
+            // Create the database
+            stmt.executeUpdate("CREATE DATABASE IF NOT EXISTS " + dbName);
+
+            // Use the database
+            stmt.executeUpdate("USE " + dbName);
+
+            // Create the subjects table
+            String createTableSQL = "CREATE TABLE IF NOT EXISTS subjects (" +
+                    "sub_id INT AUTO_INCREMENT PRIMARY KEY, " +
+                    "sub_name VARCHAR(100) NOT NULL, " +
+                    "faculty_id INT NOT NULL)";
+            stmt.executeUpdate(createTableSQL);
+
+            // Insert sample records
+            String insertDataSQL = "INSERT INTO subjects (sub_name, faculty_id) VALUES " +
+                    "('Mathematics', 101), " +
+                    "('Physics', 102), " +
+                    "('Chemistry', 103)";
+            stmt.executeUpdate(insertDataSQL);
+
+            System.out.println("Database and table setup completed with sample data.");
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ignored) {
+            }
+        }
+    }
+}
+
+**********************servlet*******************
+package a;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.*;
+
+@WebServlet("/first")
+public class first extends HttpServlet {
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/FacultyDB?useSSL=false";
+    private static final String DB_USER = "root"; // Update with your MySQL username
+    private static final String DB_PASSWORD = ""; // Update with your MySQL password
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        String facultyId = request.getParameter("facultyId");
+        String subjectId = request.getParameter("subjectId");
+        String subjectName = request.getParameter("subjectName");
+
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        int rowsUpdated = 0;
+
+        try {
+            // Load the MySQL JDBC driver
+            Class.forName("com.mysql.jdbc.Driver");
+
+            // Establish the connection
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+
+            // Update the subject details
+            String updateQuery = "UPDATE subjects SET sub_name = ? WHERE sub_id = ? AND faculty_id = ?";
+            pstmt = conn.prepareStatement(updateQuery);
+            pstmt.setString(1, subjectName);
+            pstmt.setString(2, subjectId);
+            pstmt.setString(3, facultyId);
+
+            rowsUpdated = pstmt.executeUpdate();
+
+            // Display the result
+            out.println("<html><head><title>Subject Update Result</title></head><body>");
+            if (rowsUpdated > 0) {
+                out.println("<h3>Subject updated successfully! " + rowsUpdated + " row(s) updated.</h3>");
+            } else {
+                out.println("<h3>No records found for the provided Faculty ID and Subject ID.</h3>");
+            }
+            out.println("</body></html>");
+        } catch (ClassNotFoundException | SQLException e) {
+            out.println("<p>Error: " + e.getMessage() + "</p>");
+        } finally {
+            try {
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException ignored) {
+            }
+        }
+    }
+}
+
+*******************html************************
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Subject Update</title>
+</head>
+<body>
+    <h1>Update Faculty Subject Details</h1>
+    <form action="first" method="post">
+        <label for="facultyId">Enter Faculty ID:</label>
+        <input type="text" id="facultyId" name="facultyId" required>
+        <br><br>
+
+        <label for="subjectId">Enter Subject ID:</label>
+        <input type="text" id="subjectId" name="subjectId" required>
+        <br><br>
+
+        <label for="subjectName">Enter New Subject Name:</label>
+        <input type="text" id="subjectName" name="subjectName" required>
+        <br><br>
+
+        <button type="submit">Update Subject</button>
+    </form>
+
+    <h3>Enter Faculty ID and Subject ID to update the subject name.</h3>
+</body>
+</html>
+
+
+
