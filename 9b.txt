@@ -1,0 +1,71 @@
+package a1;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import java.io.*;
+
+@WebServlet("/first")
+public class first extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+
+        // Retrieve or create the session
+        HttpSession session = request.getSession();
+
+        // Get the visit count from the session
+        Integer visitCount = (Integer) session.getAttribute("visitCount");
+
+        out.println("<html>");
+        out.println("<head><title>Visitor Counter</title></head>");
+        out.println("<body>");
+        out.println("<h1>Visitor Counter</h1>");
+
+        if (visitCount == null) {
+            // First visit
+            visitCount = 1;
+            session.setAttribute("visitCount", visitCount);
+            out.println("<p>Welcome! This is your first visit to this page.</p>");
+        } else {
+            // Increment visit count
+            visitCount++;
+            session.setAttribute("visitCount", visitCount);
+            out.println("<p>Welcome back! You have visited this page " + visitCount + " times.</p>");
+        }
+
+        out.println("</body>");
+        out.println("</html>");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Redirect to doGet to display the visitor count
+        doGet(request, response);
+    }
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Counter</title>
+</head>
+<body>
+    <h1>Visitor Counter</h1>
+    <form action="first" method="post">
+        <p>Click the button below to track your visits:</p>
+        <button type="submit">Track Visit</button>
+    </form>
+</body>
+</html>
+
+
+
