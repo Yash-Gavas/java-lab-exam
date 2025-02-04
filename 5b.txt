@@ -1,4 +1,4 @@
-package a1;
+package a;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -7,79 +7,52 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
 
-@WebServlet("/first")
-public class first extends HttpServlet {
-    private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Set response content type
-        response.setContentType("text/html");
+@WebServlet("/vote")
+public class vote extends HttpServlet {
+	private static final long serialVersionUID = 1L;
 
-        // Get input values from the request
-        String firstName = request.getParameter("firstName");
-        String lastName = request.getParameter("lastName");
-        String email = request.getParameter("email");
-        String dobStr = request.getParameter("dob");
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html");
+		
+		String fnamestr=request.getParameter("fname");
+		String lnamestr=request.getParameter("lname");
+		String email=request.getParameter("email");
+		String dob=request.getParameter("db");
+		String msg="";
+		
+		try {
+			
+			int birthyear=Integer.parseInt(dob.substring(0,4));
+			int current=2025;
+			int age=current-birthyear;
+			
+			if(age>=18) {
+				msg="Eligible";
+			}
+			else {
+				msg="Not eligible";
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		PrintWriter out=response.getWriter();
+		out.println("<html>");
+		out.println("<head><title>Eligibility</title></head>");
+		out.println("<body>");
+		out.println("<h1>"+msg+"</h1>");
+		out.println("<a href='NewFile.html'>Go back</a>");
+		out.println("</body>");
+		out.println("<html>");
+	}
 
-        // Initialize the output message
-        String message = "";
-
-        // Validate the input data
-        if (firstName == null || lastName == null || email == null || dobStr == null || firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || dobStr.isEmpty()) {
-            message = "Error: All fields are required!";
-        } else {
-            try {
-                // Parse the date of birth
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                Date dob = sdf.parse(dobStr);
-                Date currentDate = new Date();
-
-                // Calculate the age by subtracting the birth year from the current year
-                int age = currentDate.getYear() - dob.getYear();
-
-                // If the current date hasn't reached the birthday this year, subtract one from the age
-                if (currentDate.getMonth() < dob.getMonth() || (currentDate.getMonth() == dob.getMonth() && currentDate.getDate() < dob.getDate())) {
-                    age--;
-                }
-
-                // Check if the user is eligible to vote (age >= 18)
-                if (age >= 18) {
-                    message = "You are eligible to vote!";
-                } else {
-                    message = "You are not eligible to vote. You must be at least 18 years old.";
-                }
-
-            } catch (Exception e) {
-                message = "Error: Invalid date format. Please use 'yyyy-MM-dd'.";
-            }
-        }
-
-        // Display the result
-        PrintWriter out = response.getWriter();
-        out.println("<html>");
-        out.println("<head><title>Voter Eligibility</title></head>");
-        out.println("<body>");
-        out.println("<h1>Voter Eligibility Check</h1>");
-        out.println("<p><strong>First Name:</strong> " + firstName + "</p>");
-        out.println("<p><strong>Last Name:</strong> " + lastName + "</p>");
-        out.println("<p><strong>Email:</strong> " + email + "</p>");
-        out.println("<p><strong>Date of Birth:</strong> " + dobStr + "</p>");
-        out.println("<h2>" + message + "</h2>");
-        out.println("<br><br>");
-        out.println("<a href='voterForm.html'>Go Back</a>");
-        out.println("</body>");
-        out.println("</html>");
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // If accessed via GET, just redirect to the form
-        response.sendRedirect("NewFile.html");
-    }
 }
 
 <!DOCTYPE html>
