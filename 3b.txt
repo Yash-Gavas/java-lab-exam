@@ -1,4 +1,4 @@
-package a1;
+package a;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -8,114 +8,106 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@WebServlet("/first")
-public class first extends HttpServlet {
-    private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Set response content type
-        response.setContentType("text/html");
+@WebServlet("/cal")
+public class cal extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.sendRedirect("Newfile1.html");
+	}
+	@Override
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		response.setContentType("text/html");
+		
+		String num1str=request.getParameter("num1");
+		String num2str=request.getParameter("num2");
+		String operation=request.getParameter("operation");
+		
+		double num1=0,num2=0;
+		boolean validip=true;
+		try {
+			num1=Double.parseDouble(num1str);
+			num2=Double.parseDouble(num2str);
+		}
+		catch(NumberFormatException e) {
+			validip=false;
+		}
+		
+		double res=0;
+		String msg="";
+		
+		if(validip) {
+			switch(operation) {
+				case "add":
+					res=num1+num2;
+					msg="Result of addition:" +res;
+					break;
+				case "sub":
+					res=num1-num2;
+					msg="Result of sub:" +res;
+					break;
+				case "mul":
+					res=num1*num2;
+					msg="Result of sub:" +res;
+					break;
+				case "div":
+					res=num1/num2;
+					msg="Result of sub:" +res;
+					break;
+				default:
+					msg="Error";
+					break;
+					
+			}
+		}
+		else {
+			msg="Invalid";
+		}
+		
+		PrintWriter out=response.getWriter();
+		out.println("<html>");
+		out.println("<head><title>Calculator</title></head>");
+		out.println("<body>");
+		out.println("<p>" +msg +"</p>");
+		out.println("<br><br>");
+		out.println("<a href='NewFile1.html'>Go back</a>");
+		out.println("</body>");
+		out.println("</html>");
+		
+		out.close();
+		
+		
+	}
 
-        // Get input values from the request
-        String num1Str = request.getParameter("num1");
-        String num2Str = request.getParameter("num2");
-        String operation = request.getParameter("operation");
-
-        double num1 = 0, num2 = 0;
-        boolean validInput = true;
-
-        // Validate the input data (check if numbers are valid)
-        try {
-            num1 = Double.parseDouble(num1Str);
-            num2 = Double.parseDouble(num2Str);
-        } catch (NumberFormatException e) {
-            validInput = false;
-        }
-
-        // Perform the calculation if input is valid
-        double result = 0;
-        String message = "";
-
-        if (validInput) {
-            switch (operation) {
-                case "add":
-                    result = num1 + num2;
-                    message = "Result of addition: " + result;
-                    break;
-                case "subtract":
-                    result = num1 - num2;
-                    message = "Result of subtraction: " + result;
-                    break;
-                case "multiply":
-                    result = num1 * num2;
-                    message = "Result of multiplication: " + result;
-                    break;
-                case "divide":
-                    if (num2 != 0) {
-                        result = num1 / num2;
-                        message = "Result of division: " + result;
-                    } else {
-                        message = "Error: Division by zero is not allowed.";
-                    }
-                    break;
-                default:
-                    message = "Error: Invalid operation selected.";
-                    break;
-            }
-        } else {
-            message = "Error: Invalid input. Please enter valid numbers.";
-        }
-
-        // Display the result or error message
-        PrintWriter out = response.getWriter();
-        out.println("<html>");
-        out.println("<head><title>Calculator</title></head>");
-        out.println("<body>");
-        out.println("<h1>Simple Calculator</h1>");
-        out.println("<p>" + message + "</p>");
-        out.println("<br><br>");
-        out.println("<a href='calculator.html'>Go Back</a>");
-        out.println("</body>");
-        out.println("</html>");
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // If accessed via GET, just redirect to the calculator HTML form
-        response.sendRedirect("NewFile.html");
-    }
 }
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Calculator</title>
+<meta charset="UTF-8">
+<title>Simple Calculator</title>
 </head>
 <body>
-    <h1>Simple Calculator</h1>
-    <form action="first" method="post">
-        <label for="num1">Number 1:</label>
-        <input type="text" id="num1" name="num1" required>
-        <br><br>
 
-        <label for="num2">Number 2:</label>
-        <input type="text" id="num2" name="num2" required>
-        <br><br>
+	<form action="cal" method="post">
+	
+		<label for="num1">Number1</label>
+		<input type="number" id="num1" name="num1" required><br><br>
+		
+		<label for="num2">Number2</label>
+		<input type="number" id="num2" name="num2" required><br><br>
+		
+		<label for="operation">Operation:</label>
+		<select name="operation" id="operation" required>
+			<option value="add">Add</option>
+			<option value="subtract">Subtract</option>
+			<option value="mul">Multiplication</option>
+			<option value="div">Division</option>
+			
+		</select>
+		<button type="button">Submit</button>
+	</form>
 
-        <label for="operation">Operation:</label>
-        <select name="operation" id="operation" required>
-            <option value="add">Add</option>
-            <option value="subtract">Subtract</option>
-            <option value="multiply">Multiply</option>
-            <option value="divide">Divide</option>
-        </select>
-        <br><br>
-
-        <button type="submit">Calculate</button>
-    </form>
 </body>
 </html>
-
