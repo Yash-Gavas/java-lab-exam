@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,8 +9,10 @@
     <h1>Movie Ticket Price</h1>
     <%
         String user = request.getParameter("user");
-        int age = Integer.parseInt(request.getParameter("age"));
+        String ageStr = request.getParameter("age"); // Taking age as a string
+        int age = Integer.parseInt(ageStr.trim()); // Converting string to integer
         int price;
+
         if (age > 62) {
             price = 50;
         } else if (age < 10) {
@@ -19,12 +20,16 @@
         } else {
             price = 80;
         }
+
+        // Using PrintWriter for output
+        PrintWriter out = response.getWriter();
+        out.println("<p>Name: " + user + "</p>");
+        out.println("<p>Age: " + age + "</p>");
+        out.println("<p>Movie Ticket Price: Rs. " + price + "</p>");
     %>
-    <p>Name: <%= user %></p>
-    <p>Age: <%= age %></p>
-    <p>Movie Ticket Price: Rs. <%= price %></p>
 </body>
 </html>
+
 
 
 <!DOCTYPE html>
